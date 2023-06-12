@@ -34,24 +34,15 @@ app.get('/books', async (req,res)=> {
   }
   
 });
-
-app.get('/add-note', async (req,res) => {
-  try {
-    await Book.insertMany([
-      {
-        title: "Sons Of Anarchy",
-        body: "Body text goes here...",
-      },
-      {
-        title: "Game of Thrones",
-        body: "Body text goes here...",
-      }
-    ]);
-    res.json({"Data":"Added"})
-  } catch (error) {
-    console.log("err", + error);
+app.get('/books/:id', async (req,res)=> {
+  const book = await Book.findById(req.params.id);
+  if (book) {
+    res.json(book)
+  } else {
+    res.send("Something went wrong.");
   }
-})
+});
+
 app.post('/add', async (req, res) => {
   try {
     const newBook = new Book({
