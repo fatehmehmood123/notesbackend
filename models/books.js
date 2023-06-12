@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const dateObj = new Date();
+const formattedDate = dateObj.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
 const bookSchema = new mongoose.Schema({
   title: {
@@ -9,8 +11,8 @@ const bookSchema = new mongoose.Schema({
     required: true,
   },
   createdAt:{
-    type : Date,
-    default : Date.now
+    type : String,
+    default : formattedDate
   }
 });
 
