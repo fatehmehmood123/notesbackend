@@ -52,6 +52,20 @@ app.get('/add-note', async (req,res) => {
     console.log("err", + error);
   }
 })
+app.delete('/books/:id', async (req, res) => {
+  try {
+    const bookId = req.params.id;
+
+    // Delete the book with the specified ID using your MongoDB driver or ORM
+    // Replace the following code with your actual deletion logic
+    await Book.findByIdAndDelete(bookId);
+
+    res.status(200).json({ message: 'Book deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the book' });
+  }
+});
 
 //Connect to the database before listening
 connectDB().then(() => {
