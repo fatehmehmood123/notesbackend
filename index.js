@@ -17,7 +17,7 @@ const connectDB = async () => {
     process.exit(1);
   }
 }
-
+app.use(express.json());
 //Routes go here
 app.get('/', (req,res) => {
     res.send({ title: 'Books' });
@@ -52,10 +52,25 @@ app.get('/add-note', async (req,res) => {
     console.log("err", + error);
   }
 })
+app.post('/add', async (req, res) => {
+  try {
+    const newBook = new Book({
+      title: req.body.title,
+      body: req.body.body
+    });
+
+    await newBook.save();
+    res.json({ message: 'Book added successfully' });
+  } catch (error) {
+    console.error('Error adding book:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 app.delete('/books/:id', async (req, res) => {
   try {
     const bookId = req.params.id;
-
     // Delete the book with the specified ID using your MongoDB driver or ORM
     // Replace the following code with your actual deletion logic
     await Book.findByIdAndDelete(bookId);
