@@ -15,8 +15,7 @@ const bookSchema = new mongoose.Schema({
     type : String,
     default : formattedDate
   }
-},
-{ timestamps: true }
+}
 );
 
 const Book = mongoose.model('Book', bookSchema);
