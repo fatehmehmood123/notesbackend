@@ -21,6 +21,26 @@ const connectDB = async () => {
   }
 }
 app.use(express.json());
+// Middleware
+function authenticateToken(req, res, next) {
+  // Extract the access token from the Authorization header
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.sendStatus(401); // Unauthorized if token is missing
+  }
+
+  // Verify the access token
+  jwt.verify(token, process.env.JWT_SEC, (err, user) => {
+    if (err) {
+      return res.sendStatus(403); // Forbidden if token is invalid
+    }
+    req.user = user; // Attach the user object to the request
+    next(); // Proceed to the next middleware
+  });
+}
+
 //Routes go here
 app.get('/', (req,res) => {
     res.send({ title: 'Books' });
@@ -46,9 +66,10 @@ app.get('/books/:id', async (req,res)=> {
   }
 });
 
-app.post('/add', async (req, res) => {
+app.post('/add', authenticateToken, async (req, res) => {
   try {
     const newBook = new Book({
+      userId: req.user.id,
       title: req.body.title,
       body: req.body.body
     });
@@ -60,7 +81,16 @@ app.post('/add', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+app.get('/notes', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming you have the user ID available in the request object
+    const notes = await Book.find({ userId });
+    res.json(notes);
+  } catch (error) {
+    console.error('Error retrieving notes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 app.delete('/books/:id', async (req, res) => {
   try {
