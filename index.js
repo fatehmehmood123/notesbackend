@@ -2,7 +2,7 @@ require('dotenv').config();
 const cors = require("cors");
 const express = require('express')
 const mongoose = require('mongoose')
-const Book = require("./models/books");
+const Note = require("./models/Note");
 const User = require("./models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
@@ -29,16 +29,16 @@ const connectDB = async () => {
 // Adding a new Note
 app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const newBook = new Book({
+    const newNote = new Note({
       userId: req.user.id,
       title: req.body.title,
       body: req.body.body
     });
 
-    await newBook.save();
-    res.json({ message: 'Book added successfully' });
+    await newNote.save();
+    res.json({ message: 'Note added successfully' });
   } catch (error) {
-    console.error('Error adding book:', error);
+    console.error('Error adding Note:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -46,7 +46,7 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
     const userId = req.params.id; // Assuming you have the user ID available in the request object
-    const notes = await Book.find({ userId : userId });
+    const notes = await Note.find({ userId : userId });
     console.log(notes);
     res.json(notes);
   } catch (error) {
@@ -54,21 +54,22 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-app.delete('/books/:id', verifyTokenAndAuthorization, async (req, res) => {
+// Delete Note
+app.delete('/note/:id', verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const bookId = req.params.id;
-    // Delete the book with the specified ID using your MongoDB driver or ORM
+    const noteId = req.params.id;
+    // Delete the Note with the specified ID using your MongoDB driver or ORM
     // Replace the following code with your actual deletion logic
-    await Book.findByIdAndDelete(bookId);
+    await Note.findByIdAndDelete(noteId);
 
-    res.status(200).json({ message: 'Book deleted successfully' });
+    res.status(200).json({ message: 'Note deleted successfully' });
   } catch (error) {
-    console.error('Error deleting book:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the book' });
+    console.error('Error deleting note:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the Note' });
   }
 });
 
+// Register a User
 app.post("/register", async (req, res) => {
   const newUser = new User({
     email: req.body.email,
@@ -84,7 +85,7 @@ app.post("/register", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
+// Login a User
 app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -114,7 +115,7 @@ app.post("/login", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
+// Update Email of User
 app.put("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
   if (req.body.password) {
     req.body.password = CryptoJS.AES.encrypt(
