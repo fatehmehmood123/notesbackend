@@ -6,11 +6,13 @@ const Book = require("./models/books");
 const User = require("./models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-
+const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
 const PORT = process.env.PORT || 3000
 app.use(cors());
 mongoose.set('strictQuery', false);
+app.use(express.json());
+// MongoDB Connection
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI);
@@ -20,53 +22,12 @@ const connectDB = async () => {
     process.exit(1);
   }
 }
-app.use(express.json());
-// Middleware
-function authenticateToken(req, res, next) {
-  // Extract the access token from the Authorization header
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
-    return res.sendStatus(401); // Unauthorized if token is missing
-  }
-
-  // Verify the access token
-  jwt.verify(token, process.env.JWT_SEC, (err, user) => {
-    if (err) {
-      return res.sendStatus(403); // Forbidden if token is invalid
-    }
-    req.user = user; // Attach the user object to the request
-    next(); // Proceed to the next middleware
-  });
-}
 
 //Routes go here
-app.get('/', (req,res) => {
-    res.send({ title: 'Books' });
-})
 
-app.get('/books', async (req,res)=> {
-
-  const book = await Book.find();
-
-  if (book) {
-    res.json(book)
-  } else {
-    res.send("Something went wrong.");
-  }
-  
-});
-app.get('/books/:id', async (req,res)=> {
-  const book = await Book.findById(req.params.id);
-  if (book) {
-    res.json(book)
-  } else {
-    res.send("Something went wrong.");
-  }
-});
-
-app.post('/add', authenticateToken, async (req, res) => {
+// Adding a new Note
+app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
     const newBook = new Book({
       userId: req.user.id,
@@ -81,10 +42,12 @@ app.post('/add', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/notes', authenticateToken, async (req, res) => {
+// Getting the Notes of User
+app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const userId = req.user.id; // Assuming you have the user ID available in the request object
-    const notes = await Book.find({ userId });
+    const userId = req.params.id; // Assuming you have the user ID available in the request object
+    const notes = await Book.find({ userId : userId });
+    console.log(notes);
     res.json(notes);
   } catch (error) {
     console.error('Error retrieving notes:', error);
@@ -92,7 +55,7 @@ app.get('/notes', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/books/:id', async (req, res) => {
+app.delete('/books/:id', verifyTokenAndAuthorization, async (req, res) => {
   try {
     const bookId = req.params.id;
     // Delete the book with the specified ID using your MongoDB driver or ORM
@@ -105,6 +68,7 @@ app.delete('/books/:id', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while deleting the book' });
   }
 });
+
 app.post("/register", async (req, res) => {
   const newUser = new User({
     email: req.body.email,
@@ -120,6 +84,7 @@ app.post("/register", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -149,6 +114,30 @@ app.post("/login", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+app.put("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
+  if (req.body.password) {
+    req.body.password = CryptoJS.AES.encrypt(
+      req.body.password,
+      process.env.PASS_SEC
+    ).toString();
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+
 //Connect to the database before listening
 connectDB().then(() => {
     app.listen(PORT, () => {
