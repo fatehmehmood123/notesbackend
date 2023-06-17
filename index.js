@@ -89,9 +89,6 @@ app.post("/register", async (req, res) => {
 });
 // Login a User
 app.post("/login", async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   try {
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
