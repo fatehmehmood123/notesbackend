@@ -63,6 +63,18 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Editing the Notes of User
+app.get('/edit/:id' , async (req, res) => {
+  try {
+    const id = req.params.id; // Assuming you have the user ID available in the request object
+    const notes = await Note.find({ _id : id });
+    console.log(notes);
+    res.json(notes);
+  } catch (error) {
+    console.error('Error retrieving notes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Delete Note
 app.delete('/note/:id', async (req, res) => {
