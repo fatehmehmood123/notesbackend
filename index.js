@@ -1,5 +1,4 @@
 require('dotenv').config();
-const cors = require("cors");
 const express = require('express')
 const mongoose = require('mongoose')
 const Note = require("./models/Note");
@@ -9,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
 const PORT = process.env.PORT || 3000
+const cors = require("cors");
 app.use(cors());
 mongoose.set('strictQuery', false);
 app.use(express.json());
@@ -42,6 +42,7 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
@@ -54,6 +55,7 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 // Delete Note
 app.delete('/note/:id', verifyTokenAndAuthorization, async (req, res) => {
   try {
@@ -87,6 +89,9 @@ app.post("/register", async (req, res) => {
 });
 // Login a User
 app.post("/login", async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
+  res.setHeader('Access-Control-Allow-Methods', 'POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   try {
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
