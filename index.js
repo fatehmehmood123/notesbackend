@@ -7,17 +7,17 @@ const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 4000
 const cors = require("cors");
 app.use(cors());
 mongoose.set('strictQuery', false);
 app.use(express.json());
-// app.use(function(req, res, next) {
-//   res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   next();
-// });
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 // MongoDB Connection
 const connectDB = async () => {
@@ -91,11 +91,15 @@ app.post("/register", async (req, res) => {
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error registering user:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 // Login a User
 app.post("/login", async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   try {
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
