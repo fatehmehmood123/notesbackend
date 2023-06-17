@@ -7,17 +7,18 @@ const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3400
 const cors = require("cors");
 app.use(cors({
   origin: '*'
 }));
 mongoose.set('strictQuery', false);
 app.use(express.json());
+
 app.use(function(req, res, next) {
-  req.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
-  req.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  req.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
 
@@ -51,7 +52,7 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+app.get('/',(req,res)=>{res.json({"name":"fateh"})});
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
@@ -64,9 +65,21 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Editing the Notes of User
+app.get('/edit/:id' , async (req, res) => {
+  try {
+    const id = req.params.id; // Assuming you have the user ID available in the request object
+    const notes = await Note.find({ _id : id });
+    console.log(notes);
+    res.json(notes);
+  } catch (error) {
+    console.error('Error retrieving notes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Delete Note
-app.delete('/note/:id', verifyTokenAndAuthorization, async (req, res) => {
+app.delete('/note/:id', async (req, res) => {
   try {
     const noteId = req.params.id;
     // Delete the Note with the specified ID using your MongoDB driver or ORM
@@ -93,12 +106,18 @@ app.post("/register", async (req, res) => {
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error registering user:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 // Login a User
 app.post("/login", async (req, res) => {
   try {
+    // res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
 
