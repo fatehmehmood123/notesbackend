@@ -49,7 +49,7 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/',(req,res)=>{res.json("check")});
+app.get('/',(req,res)=>{res.json({"name":"fateh"})});
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
