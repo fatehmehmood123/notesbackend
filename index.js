@@ -70,7 +70,7 @@ app.delete('/note/:id', verifyTokenAndAuthorization, async (req, res) => {
     const noteId = req.params.id;
     // Delete the Note with the specified ID using your MongoDB driver or ORM
     // Replace the following code with your actual deletion logic
-    await Note.findByIdAndDelete(noteId);
+    await Note.deleteOne({_id:noteId});
 
     res.status(200).json({ message: 'Note deleted successfully' });
   } catch (error) {
