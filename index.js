@@ -97,10 +97,10 @@ app.post("/register", async (req, res) => {
 });
 // Login a User
 app.post("/login", async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   try {
+    res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
 
