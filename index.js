@@ -12,6 +12,13 @@ const cors = require("cors");
 app.use(cors());
 mongoose.set('strictQuery', false);
 app.use(express.json());
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 // MongoDB Connection
 const connectDB = async () => {
   try {
