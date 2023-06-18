@@ -83,7 +83,7 @@ app.get('/edit/:id' , async (req, res) => {
 });
 
 // Delete Note
-app.delete('/note/:id',verifyTokenAndAuthorization, async (req, res) => {
+app.delete('/note/:id', async (req, res) => {
   try {
     
     console.log(req.params.id);
