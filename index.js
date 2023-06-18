@@ -83,11 +83,13 @@ app.get('/edit/:id' , async (req, res) => {
 });
 
 // Delete Note
-app.delete('/note/:id', async (req, res) => {
+app.delete('/note/:id/:noteId', async (req, res) => {
   try {
     
     console.log(req.params.id);
-    const noteId = req.params.id;
+    console.log(req.params.noteId);
+    const noteId = req.params.noteId;
+   
     // Delete the Note with the specified ID using your MongoDB driver or ORM
     // Replace the following code with your actual deletion logic
     await Note.findByIdAndDelete(noteId);
