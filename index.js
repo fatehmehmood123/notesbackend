@@ -59,7 +59,8 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
 app.get('/',(req,res)=>{res.json({
   "name":"Muhammad Fateh Mehmood",
    "Application":"Notes on Cloud",
-   "DeployedOn":"vercel" 
+   "DeployedOn":"vercel",
+   "FrontEndLink":"https://notes-on-cloud.vercel.app/" 
 })});
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
