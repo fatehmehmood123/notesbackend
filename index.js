@@ -56,7 +56,11 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/',(req,res)=>{res.json({"name":"Notes on Cloud"})});
+app.get('/',(req,res)=>{res.json({
+  "name":"Muhammad Fateh Mehmood",
+   "Application":"Notes on Cloud",
+   "DeployedOn":"vercel" 
+})});
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
