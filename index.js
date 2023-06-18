@@ -70,9 +70,9 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 // Editing the Notes of User
-app.get('/edit/:id' , async (req, res) => {
+app.get('/edit/:id/:noteId' ,verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const id = req.params.id; // Assuming you have the user ID available in the request object
+    const id = req.params.noteId; 
     const notes = await Note.find({ _id : id });
     console.log(notes);
     res.json(notes);
@@ -85,8 +85,6 @@ app.get('/edit/:id' , async (req, res) => {
 // Delete Note
 app.delete('/note/:id/:noteId',verifyTokenAndAuthorization, async (req, res) => {
   try {
-    console.log(req.params.id);
-    console.log(req.params.noteId);
     const noteId = req.params.noteId;
    
     // Delete the Note with the specified ID using your MongoDB driver or ORM
