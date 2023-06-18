@@ -56,7 +56,7 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-app.get('/',(req,res)=>{res.json({"name":"fateh"})});
+app.get('/',(req,res)=>{res.json({"name":"Notes on Cloud"})});
 // Getting the Notes of User
 app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
@@ -83,9 +83,9 @@ app.get('/edit/:id' , async (req, res) => {
 });
 
 // Delete Note
-app.delete('/note/:id', async (req, res) => {
+app.delete('/note/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const noteId = req.params.id;
+    const noteId = req.body._id;
     // Delete the Note with the specified ID using your MongoDB driver or ORM
     // Replace the following code with your actual deletion logic
     await Note.findByIdAndDelete(noteId);
@@ -117,11 +117,6 @@ app.post("/register", async (req, res) => {
 // Login a User
 app.post("/login", async (req, res) => {
   try {
-    // res.setHeader('Access-Control-Allow-Origin', 'https://notes-on-cloud.vercel.app');
-    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-
     const user = await User.findOne({ email: req.body.email });
     !user && res.status(401).json("Wrong credentials!");
 
@@ -139,7 +134,7 @@ app.post("/login", async (req, res) => {
           id: user._id
         },
         process.env.JWT_SEC,
-        {expiresIn:"3d"}
+        {expiresIn:"6d"}
       );
   
       const { password, ...others } = user._doc;
