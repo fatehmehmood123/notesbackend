@@ -72,6 +72,8 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
 // Editing the Notes of User
 app.get('/edit/:id/:noteId' ,verifyTokenAndAuthorization, async (req, res) => {
   try {
+    console.log(req.params.id);
+    console.log(req.params.noteId);
     const id = req.params.noteId; 
     const notes = await Note.find({ _id : id });
     console.log(notes);
