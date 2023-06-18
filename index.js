@@ -75,7 +75,7 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 // Editing the Notes of User
-app.get('/edit/:id/:noteId' ,verifyTokenAndAuthorization, async (req, res) => {
+app.get('/edit/:id/:noteId' , async (req, res) => {
   try {
     console.log(req.params.id);
     console.log(req.params.noteId);
