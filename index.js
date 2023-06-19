@@ -56,10 +56,12 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+var decrypted = CryptoJS.AES.decrypt("U2FsdGVkX19HJSxwvR8LIUmbpnajUBJY+Zb8aJps4So=", "Chickenburger123");
+console.log(decrypted);
 app.get('/',(req,res)=>{res.json({
   "name":"Muhammad Fateh Mehmood",
    "Application":"Notes on Cloud",
-   "DeployedOn":"vercel",
+   "DeployedOn": decrypted,
    "FrontEndLink":"https://notes-on-cloud.vercel.app/" 
 })});
 // Getting the Notes of User
