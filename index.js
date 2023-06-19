@@ -61,7 +61,7 @@ console.log(decrypted);
 app.get('/',(req,res)=>{res.json({
   "name":"Muhammad Fateh Mehmood",
    "Application":"Notes on Cloud",
-   "DeployedOn": decrypted,
+   "DeployedOn": "Vercel",
    "FrontEndLink":"https://notes-on-cloud.vercel.app/" 
 })});
 // Getting the Notes of User
