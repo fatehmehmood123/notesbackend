@@ -16,16 +16,16 @@ app.use(express.json());
 app.use(function(req, res, next) {
   const allowedOrigins = ['https://notes-on-cloud.vercel.app', 'http://127.0.0.1:5500'];
   const origin = req.headers.origin;
-  
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
-
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
-
+app.use(cors({
+  origin: '*'
+}));
 // MongoDB Connection
 const connectDB = async () => {
   try {
@@ -75,11 +75,11 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 // Editing the Notes of User
-app.get('/edit/:id' , async (req, res) => {
+app.get('/edit/:id/:noteId' ,verifyTokenAndAuthorization, async (req, res) => {
   try {
     console.log(req.params.id);
     console.log(req.params.noteId);
-    const id = req.params.id; 
+    const id = req.params.noteId; 
     const notes = await Note.find({ _id : id });
     console.log(notes);
     res.json(notes);
