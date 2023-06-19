@@ -9,7 +9,9 @@ const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
 const PORT = process.env.PORT || 3400
 const cors = require("cors");
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 mongoose.set('strictQuery', false);
 app.use(express.json());
 
