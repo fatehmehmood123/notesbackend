@@ -113,7 +113,9 @@ app.post("/register", async (req, res) => {
     password: CryptoJS.AES.encrypt(
       req.body.password,
       process.env.PASS_SEC
-    ).toString()
+    ).toString(),
+    token:req.body.token,
+    isVerified:req.body.isVerified
   });
   try {
     const savedUser = await newUser.save();
