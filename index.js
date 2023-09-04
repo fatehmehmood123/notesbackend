@@ -5,6 +5,7 @@ const Note = require("./models/Note");
 const User = require("./models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer'); 
 const {verifyTokenAndAuthorization} = require('./routes/verifyToken');
 const app = express()
 const PORT = process.env.PORT || 3400
@@ -174,7 +175,62 @@ app.put("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json(err);
   }
 });
+// verify email route
+app.post("/sendVerificationEmail", async (req, res) => {
+  const email = req.body.email;
+  const token = req.body.token;
+  // Generate a unique verification token (you can use libraries like crypto-random-string)
+  // const verificationToken = generateUniqueToken();
 
+  // Store the token in your database along with the user's email
+  
+  // Create a link that the user can click to verify their email
+  const verificationLink = `http://localhost:3400/verify-email?token=${verificationToken}`;  
+
+  // Send the verification email
+  const transporter = nodemailer.createTransport({
+    // Configure your email service provider here (e.g., Gmail, SendGrid)
+    service: 'Gmail',
+    auth: {
+      user: 'fatehmehmood123@gmail.com',
+      pass: 'zpwrsydgqikzkaqs',
+    },
+  });
+
+  const mailOptions = {
+    from: 'fatehmehmood123@gmail.com',
+    to: email,
+    subject: 'Email Verification',
+    text: `Click on the following link to verify your email: ${verificationLink}`,
+  };
+  // ${verificationLink}
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Email sending error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      console.log('Email sent:', info.response);
+      res.status(200).json({ message: 'Email sent successfully' });
+    }
+  });
+});
+app.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+
+  // Find the user with the provided verification token
+  const user = await User.findOne({ token: token });
+
+  if (!user) {
+    return res.status(404).json({ error: 'Verification token not found' });
+  }
+
+  // Verify the user's email
+  user.isVerified = true;
+  user.token = undefined; // Remove the token after verification
+  await user.save();
+
+  res.status(200).json({ message: 'Email verified successfully' });
+});
 
 //Connect to the database before listening
 connectDB().then(() => {
