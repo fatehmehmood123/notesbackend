@@ -14,7 +14,7 @@ mongoose.set('strictQuery', false);
 app.use(express.json());
 
 app.use(function(req, res, next) {
-  const allowedOrigins = ['https://notes-on-cloud.vercel.app', 'http://127.0.0.1:5500'];
+  const allowedOrigins = ['https://notes-on-cloud.vercel.app', 'http://127.0.0.1:5500','http://127.0.0.1:5500/frontend/signup.html'];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -56,11 +56,10 @@ app.post('/add/:id',verifyTokenAndAuthorization, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-var decrypted = CryptoJS.AES.decrypt("U2FsdGVkX19HJSxwvR8LIUmbpnajUBJY+Zb8aJps4So=", "Chickenburger123");
-console.log(decrypted);
+
 app.get('/',(req,res)=>{res.json({
-  "name":"Muhammad Fateh Mehmood",
-   "Application":"Notes on Cloud",
+   "name":"Muhammad Fateh Mehmood",
+   "Application":"Note on Cloud",
    "DeployedOn": "Vercel",
    "FrontEndLink":"https://notes-on-cloud.vercel.app/" 
 })});
@@ -69,7 +68,7 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
   try {
     const userId = req.params.id; // Assuming you have the user ID available in the request object
     const notes = await Note.find({ userId : userId });
-    console.log(notes);
+   
     res.json(notes);
   } catch (error) {
     console.error('Error retrieving notes:', error);
@@ -79,11 +78,10 @@ app.get('/notes/:id',verifyTokenAndAuthorization, async (req, res) => {
 // Editing the Notes of User
 app.get('/edit/:id/:noteId' ,verifyTokenAndAuthorization, async (req, res) => {
   try {
-    console.log(req.params.id);
-    console.log(req.params.noteId);
+   
     const id = req.params.noteId; 
     const notes = await Note.find({ _id : id });
-    console.log(notes);
+    
     res.json(notes);
   } catch (error) {
     console.error('Error retrieving notes:', error);
