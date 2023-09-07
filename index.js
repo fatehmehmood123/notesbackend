@@ -139,7 +139,8 @@ app.post("/login", async (req, res) => {
 
     OriginalPassword !== req.body.password &&
       res.status(401).json("Wrong credentials!");
-
+    
+    user.isVerified === false && res.status(400).json("Email not verified")  
       const accessToken = jwt.sign(
         {
           id: user._id
@@ -149,7 +150,7 @@ app.post("/login", async (req, res) => {
       );
   
       const { password, ...others } = user._doc;
-  
+        
       res.status(200).json({...others, accessToken});
   } catch (err) {
     res.status(500).json(err);
@@ -180,14 +181,12 @@ app.put("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
 // verify email route
 app.post("/sendVerificationEmail", async (req, res) => {
   const email = req.body.email;
-  const token = req.body.token;
-  // Generate a unique verification token (you can use libraries like crypto-random-string)
-  // const verificationToken = generateUniqueToken();
-
-  // Store the token in your database along with the user's email
+  const token = req.body.verificationToken;
+  console.log(token)
+  
   
   // Create a link that the user can click to verify their email
-  const verificationLink = `http://localhost:3400/verify-email?token=${verificationToken}`;  
+  const verificationLink = `https://notesbackend-ten.vercel.app/verify-email?token=${token}`;  
 
   // Send the verification email
   const transporter = nodemailer.createTransport({
@@ -217,23 +216,33 @@ app.post("/sendVerificationEmail", async (req, res) => {
   });
 });
 app.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
-
+  const token = parseInt(req.query.token);
+  console.log(token);
   // Find the user with the provided verification token
   const user = await User.findOne({ token: token });
-
+  console.log(user);
   if (!user) {
     return res.status(404).json({ error: 'Verification token not found' });
   }
 
   // Verify the user's email
   user.isVerified = true;
-  user.token = undefined; // Remove the token after verification
+  // user.token = undefined; // Remove the token after verification
   await user.save();
 
   res.status(200).json({ message: 'Email verified successfully' });
 });
-
+app.get('/check', async (req, res) => {
+ 
+  const user = await User.findOne({ token:318482});
+  console.log(user);
+  if (!user) {
+    return res.status(404).json({ error: 'Verification token not found' });
+  }
+  if(user){
+    return res.status(200).json(user);
+  }
+});
 //Connect to the database before listening
 connectDB().then(() => {
     app.listen(PORT, () => {
