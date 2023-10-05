@@ -5,15 +5,17 @@ const Note = require("./models/Note");
 const User = require("./models/User");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
+const cookieParser = require('cookie-parser');
 const nodemailer = require("nodemailer");
 const { verifyTokenAndAuthorization } = require("./routes/verifyToken");
 const app = express();
 const PORT = process.env.PORT || 3400;
 const cors = require("cors");
+
 app.use(cors());
 mongoose.set("strictQuery", false);
 app.use(express.json());
-
+app.use(cookieParser());
 app.use(function (req, res, next) {
   const allowedOrigins = [
     "https://notes-on-cloud.vercel.app",
@@ -120,6 +122,10 @@ app.delete(
 
 // Register a User
 app.post("/register", async (req, res) => {
+  const existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser) {
+    return res.status(400).json({ error: "User already exists" });
+  }
   const newUser = new User({
     email: req.body.email,
     password: CryptoJS.AES.encrypt(
@@ -142,7 +148,7 @@ app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     !user &&
-      res.status(401).json("The Account with this email does not exist!");
+      res.status(403).json("The Account with this email does not exist!");
 
     const hashedPassword = CryptoJS.AES.decrypt(
       user.password,
@@ -150,8 +156,7 @@ app.post("/login", async (req, res) => {
     );
     const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
 
-    OriginalPassword !== req.body.password &&
-      res.status(401).json("Wrong Password!");
+    OriginalPassword !== req.body.password && res.status(402).json("Wrong Password!");
 
     user.isVerified === false && res.status(401).json("Email not verified");
     const accessToken = jwt.sign(
@@ -161,15 +166,14 @@ app.post("/login", async (req, res) => {
       process.env.JWT_SEC,
       { expiresIn: "3d" }
     );
-
+    // res.cookie('access_token', accessToken, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000 }); 
     const { password, ...others } = user._doc;
-    res.header('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
-    res.status(200).json({ ...others, accessToken });
+     res.status(200).json({ ...others ,accessToken});
   } catch (err) {
-    res.header('Access-Control-Allow-Origin', '*');
     res.status(500).json(err);
   }
 });
+
 // Update Email of User
 app.put("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
   if (req.body.password) {
@@ -215,7 +219,7 @@ app.post("/sendVerificationEmail", async (req, res) => {
     from: "fatehmehmood123@gmail.com",
     to: email,
     subject: "Email Verification",
-    text: `Click on the following link to verify your email: ${verificationLink}`,
+    text: `Click on the following link to verify your Account: ${verificationLink}`,
   };
   // ${verificationLink}
   transporter.sendMail(mailOptions, (error, info) => {
@@ -240,21 +244,12 @@ app.get("/verify-email", async (req, res) => {
 
   // Verify the user's email
   user.isVerified = true;
-  // user.token = undefined; // Remove the token after verification
+  user.token = 0; // Remove the token after verification
   await user.save();
 
   res.status(200).json({ message: "Email verified successfully" });
 });
-app.get("/check", async (req, res) => {
-  const user = await User.findOne({ token: 318482 });
-  console.log(user);
-  if (!user) {
-    return res.status(404).json({ error: "Verification token not found" });
-  }
-  if (user) {
-    return res.status(200).json(user);
-  }
-});
+
 //Connect to the database before listening
 connectDB().then(() => {
   app.listen(PORT, () => {
